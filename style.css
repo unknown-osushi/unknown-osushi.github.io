@@ -17,25 +17,33 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* 🌟 背景を統合：bodyに直接グラデーションを固定 */
+html {
+    scroll-behavior: auto !important;
+    height: 100%;
+}
+
 body {
     font-family: var(--font-base);
     background: radial-gradient(circle at 50% 50%, #1a0033 0%, #0a0112 100%) fixed;
     color: var(--text-white);
     overflow-x: hidden;
+    margin: 0;
+    height: 100%;
 }
 
-/* --- 2. ヘッダーとナビゲーションの修正 --- */
+body::-webkit-scrollbar { display: none; }
+
+/* --- 2. ヘッダー --- */
 .header {
     position: fixed;
     top: 0;
     width: 100%;
     padding: 20px 50px;
     display: flex;
-    justify-content: space-between; /* ロゴを左、メニューを右に */
+    justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    background: rgba(10, 1, 18, 0.7); /* 背景に馴染む半透明 */
+    background: rgba(10, 1, 18, 0.7);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -44,18 +52,26 @@ body {
     font-family: var(--font-evo);
     font-size: 1.5rem;
     letter-spacing: 2px;
-    color: #fff;
     text-decoration: none;
+    cursor: pointer;
+    transition: filter 0.3s ease;
+    z-index: 1001;
+    /* 縁取り */
+    color: transparent !important;
+    -webkit-text-stroke: 1.2px #ffffff;
+    filter: drop-shadow(0 0 10px rgba(176, 82, 255, 0.5));
+}
+.logo:hover {
+    filter: drop-shadow(0 0 14px var(--accent-purple));
 }
 
 .nav {
     display: flex;
-    gap: 30px; /* メニュー項目間の距離 */
+    gap: 30px;
 }
-
 .nav a {
     text-decoration: none;
-    color: rgba(255, 255, 255, 0.7); /* 通常時は少し薄く */
+    color: rgba(255, 255, 255, 0.7);
     font-size: 0.9rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -63,36 +79,49 @@ body {
     transition: all 0.3s ease;
     position: relative;
 }
-
-/* ホバー時に白く光る演出 */
 .nav a:hover {
     color: #fff;
     text-shadow: 0 0 10px rgba(138, 43, 226, 0.8);
 }
-
-/* 現在の場所を示す下線（隠し味） */
 .nav a::after {
     content: '';
     position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 0;
-    height: 2px;
+    bottom: -5px; left: 0;
+    width: 0; height: 2px;
     background: var(--primary-purple);
     transition: width 0.3s ease;
 }
+.nav a:hover::after { width: 100%; }
 
-.nav a:hover::after {
-    width: 100%;
+/* 戻るボタン（ヘッダー内） */
+.back-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 8px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-family: var(--font-base);
+    transition: all 0.3s ease;
+}
+.back-btn:hover {
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 15px rgba(176, 82, 255, 0.4);
 }
 
-/* スマホ等で重ならないための微調整 */
 @media (max-width: 768px) {
     .header { padding: 15px 20px; }
     .nav { gap: 15px; }
     .nav a { font-size: 0.8rem; }
 }
-/* 🌟 各セクションを透明にして背景を繋げる */
+
+/* --- 3. マウス追従背景（canvas版に置き換え済み） --- */
+.cursor-bg, .cursor-bg-2 {
+    display: none !important;
+}
+
+/* --- 4. セクション共通 --- */
 .section {
     width: 100%;
     min-height: 100vh;
@@ -100,189 +129,66 @@ body {
     justify-content: center;
     align-items: center;
     position: relative;
-    background: transparent !important; /* 個別の背景色を無効化 */
+    background: transparent !important;
+}
+.panel {
+    height: 100vh !important;
+    width: 100%;
+    position: relative;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-/* --- 🌟 マウス追従背景のベース設定 🌟 --- */
-.cursor-bg, .cursor-bg-2 {
-    position: fixed;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-    z-index: 1;
-    filter: blur(100px);
-    /* 🌟 transition: transform を入れないのがコツ（JSと喧嘩するため） */
-    /* 代わりに will-change でブラウザの描画を最適化 */
-    will-change: transform;
-}
-.cursor-bg {
-    width: 650px; height: 650px;
-    background: radial-gradient(circle, rgba(138, 43, 226, 0.4) 0%, transparent 70%);
-    /* 透明度だけをゆっくり変えて、色が変わったように見せる */
-    animation: aurora-1 8s infinite alternate ease-in-out;
-}
-
-.cursor-bg-2 {
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(0, 212, 255, 0.3) 0%, transparent 70%);
-    animation: aurora-2 8s infinite alternate-reverse ease-in-out;
-}
-
-/* 🌟 色（透明度）の呼吸アニメーション 🌟 */
-@keyframes aurora-1 {
-    0% { opacity: 1; }
-    100% { opacity: 0.3; }
-}
-
-@keyframes aurora-2 {
-    0% { opacity: 0.2; }
-    100% { opacity: 0.9; }
-}
-
-@keyframes pulse-blue {
-    0% { opacity: 0; transform: scale(0.8); }
-    50% { opacity: 0.7; transform: scale(1.1); }
-    100% { opacity: 1; transform: scale(1); }
-}
-/* --- 4. テキストスタイル（縁取り） --- */
-.logo, .hero-title {
+/* --- 5. Hero --- */
+.hero-title {
     font-family: var(--font-evo) !important;
     text-transform: uppercase;
     color: transparent !important;
     -webkit-text-stroke: 1.2px #ffffff;
     filter: drop-shadow(0 0 10px rgba(176, 82, 255, 0.5));
-}
-.hero-title { font-size: clamp(3.5rem, 12vw, 9rem); line-height: 1; }
-
-/* --- 5. Membersセクション（横スクロール維持） --- */
-.horizontal-scroll-container { width: 100%; display: flex; flex-direction: column; padding-left: 10vw; z-index: 5; }
-.cards-wrapper { display: flex; gap: 30px; padding-bottom: 50px; }
-
-.member-card {
-    min-width: 320px; height: 500px;
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(138, 43, 226, 0.2);
-    border-radius: 30px;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 50px 20px;
-    transition: all 0.5s ease;
-}
-.member-card:hover { transform: translateY(-15px); border-color: var(--accent-purple); background: rgba(138, 43, 226, 0.08); }
-
-.member-img { width: 150px; height: 150px; border-radius: 50%; border: 2px solid var(--accent-purple); overflow: hidden; margin-bottom: 25px; }
-.member-img img { width: 100%; height: 100%; object-fit: cover; }
-
-/* 🌟 SNSボタンの色とホバー設定（Communityと統一） */
-.member-links { display: flex; gap: 12px; margin-top: auto; }
-.member-links a {
-    padding: 10px 20px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;
-    text-decoration: none; color: #ffffff !important;
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.4s ease;
+    font-size: clamp(3.5rem, 12vw, 9rem);
+    line-height: 1;
 }
 
-.member-links a.link-yt:hover { border-color: #ff0000 !important; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4); background: rgba(255, 0, 0, 0.15); }
-.member-links a.link-x:not(.disabled):hover { border-color: var(--twitter-blue) !important; box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); background: rgba(0, 212, 255, 0.15); }
-.link-x.disabled { opacity: 0.2; pointer-events: none; }
-
-/* 🌟 +12 縁取り設定 */
-.more-card { border-style: dashed !important; justify-content: center !important; }
-.more-number-outline {
-    font-family: var(--font-base) !important; font-size: 5rem; font-weight: 900;
-    color: transparent !important; -webkit-text-stroke: 1.5px #ffffff;
-    line-height: 1; display: block; margin-bottom: 10px;
-}
-
-/* --- 6. Communityセクション --- */
-.social-grid { display: flex; gap: 20px; margin-top: 40px; justify-content: center; }
-.social-card {
-    width: 280px; padding: 50px 20px; text-decoration: none; border-radius: 24px;
-    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
-    text-align: center; transition: 0.4s; color: #fff;
-}
-.social-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.08); }
-.social-card.yt:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2); }
-.social-card.tw:hover { border-color: var(--twitter-blue); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
-.social-card.dc:hover { border-color: #5865F2; box-shadow: 0 10px 30px rgba(88, 101, 242, 0.2); }
-
-/* --- 🌟 セクションタイトル（Members, Activities, Community）の文字サイズを戻す 🌟 --- */
+/* --- 6. セクションタイトル --- */
 .section-title {
-    font-size: 4rem; /* サイズを大きく */
-    font-weight: 800; /* より太く */
+    font-size: 4rem;
+    font-weight: 800;
     margin-bottom: 60px;
     text-align: center;
     color: #ffffff;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    /* ほんのり光らせる（視認性アップ） */
     text-shadow: 0 0 20px rgba(176, 82, 255, 0.3);
 }
-
-/* --- 🌟 メンバー名の文字サイズ 🌟 --- */
-.member-info h3 { 
-    font-size: 1.8rem; /* 名前を大きく */
-    font-weight: 700;
-    margin-bottom: 8px; 
-    color: #fff; 
-}
-
-.role { 
-    font-size: 1rem; /* 役職を少し大きく */
-    color: var(--accent-purple); 
-    font-weight: 700; 
-    letter-spacing: 0.15em;
-}
-
-/* --- 🌟 Communityカード内の文字サイズ 🌟 --- */
-.platform { 
-    font-size: 2rem; /* YouTube, Twitterなどの文字 */
-    font-weight: 800; 
-    display: block; 
-    margin-bottom: 10px; 
-    color: #fff; 
-}
-
-.label { 
-    font-size: 0.9rem; /* @IDなどの文字 */
-    opacity: 0.7; 
-    color: #fff; 
-}
-
-/* スマホ表示などで大きすぎたら自動調整する設定 */
 @media (max-width: 768px) {
     .section-title { font-size: 2.5rem; }
-    .platform { font-size: 1.6rem; }
 }
 
-/* --- 🌟 Members セクションを中央配置に書き換え 🌟 --- */
+/* --- 7. Members --- */
 .members-container {
     width: 100%;
-    max-width: 1400px; /* 広がりすぎないように制限 */
+    max-width: 1400px;
     margin: 0 auto;
     padding: 0 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
-/* --- 🌟 メンバーカードをすべて横一列に並べる 🌟 --- */
 .members-grid {
     display: flex;
-    flex-direction: row; /* 横並び */
-    flex-wrap: nowrap;   /* 🌟 絶対に折り返さない */
-    justify-content: center; /* 中央に寄せる */
-    gap: 20px;           /* カード同士の間隔（狭ければ15pxなどに調整） */
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: center;
+    gap: 20px;
     width: 100%;
-    max-width: 100%;     /* 幅制限を解除 */
-    margin: 0 auto;
     padding: 20px;
 }
-
-/* カードの横幅を固定して、並びを安定させる */
 .member-card {
-    flex: 0 0 280px;    /* 🌟 横幅を280pxに固定して4枚並びやすくする */
-    height: 460px;      /* 高さを少し調整 */
+    flex: 0 0 280px;
+    height: 460px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(138, 43, 226, 0.2);
@@ -293,69 +199,212 @@ body {
     padding: 30px 15px;
     transition: all 0.4s ease;
 }
-
-/* 画面が狭くなった時（ノートPCなど）にカードがはみ出さないための設定 */
+.member-card:hover {
+    transform: translateY(-15px);
+    border-color: var(--accent-purple);
+    background: rgba(138, 43, 226, 0.08);
+}
+.member-img {
+    width: 150px; height: 150px;
+    border-radius: 50%;
+    border: 2px solid var(--accent-purple);
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+.member-img img { width: 100%; height: 100%; object-fit: cover; }
+.member-info h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+.role {
+    font-size: 1rem;
+    color: var(--accent-purple);
+    font-weight: 700;
+    letter-spacing: 0.15em;
+}
+.member-links { display: flex; gap: 12px; margin-top: auto; }
+.member-links a {
+    padding: 10px 20px; border-radius: 12px; font-size: 0.8rem; font-weight: 700;
+    text-decoration: none; color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+}
+.member-links a.link-yt:hover { border-color: #ff0000 !important; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.4); background: rgba(255, 0, 0, 0.15); }
+.member-links a.link-x:not(.disabled):hover { border-color: var(--twitter-blue) !important; box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5); background: rgba(0, 212, 255, 0.15); }
+.link-x.disabled { opacity: 0.2; pointer-events: none; }
+.more-card { border-style: dashed !important; justify-content: center !important; }
+.more-number-outline {
+    font-family: var(--font-base) !important; font-size: 5rem; font-weight: 900;
+    color: transparent !important; -webkit-text-stroke: 1.5px #ffffff;
+    line-height: 1; display: block; margin-bottom: 10px;
+}
 @media (max-width: 1200px) {
-    .members-grid {
-        justify-content: flex-start; /* 左詰めに切り替え */
-        overflow-x: auto;            /* はみ出したら横スクロール可能に */
-        padding-bottom: 30px;
-    }
-    .member-card {
-        flex: 0 0 260px; /* 少し小さくする */
-    }
+    .members-grid { justify-content: flex-start; overflow-x: auto; padding-bottom: 30px; }
+    .member-card { flex: 0 0 260px; }
 }
 
-/* ヘッダーロゴの設定 */
-.logo {
-    cursor: pointer;
-    text-decoration: none;
-    transition: filter 0.3s ease;
-    z-index: 1001;
-}
-
-.logo:hover {
-    filter: drop-shadow(0 0 10px var(--accent-purple));
-}
-
-/* セクション切り替え用の必須設定 */
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
-/* 各セクションを画面ぴったりに固定 */
-.panel {
-    height: 100vh;
-    width: 100%;
-    overflow: hidden; /* コンテンツがはみ出さないように制御 */
+/* --- 8. Activities --- */
+.activity-grid {
     display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-/* スクロールバーを非表示にしつつスクロール可能にする（お好みで） */
-body::-webkit-scrollbar {
-    display: none;
-}
-
-/* 必須：htmlとbodyのスクロール挙動を安定させる */
-html {
-    scroll-behavior: auto !important; /* ブラウザ標準の挙動をオフ */
-}
-
-body {
-    margin: 0;
-    overflow-x: hidden;
-}
-
-/* 🌟 ここが重要：各セクションを強制的に画面1枚分にする */
-.panel {
-    height: 100vh !important;
+    flex-direction: column;
+    gap: 0;
     width: 100%;
+    max-width: 900px;
+}
+
+.act-item {
     position: relative;
     display: flex;
-    justify-content: center;
     align-items: center;
+    padding: 36px 48px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     overflow: hidden;
+    transition: all 0.4s ease;
+}
+.act-item:last-child {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 番号 */
+.act-item::before {
+    content: attr(data-num);
+    font-family: var(--font-evo);
+    font-size: 0.75rem;
+    color: rgba(176, 82, 255, 0.5);
+    letter-spacing: 0.2em;
+    margin-right: 48px;
+    flex-shrink: 0;
+    transition: color 0.3s ease;
+}
+
+/* ホバー時の背景スライン */
+.act-item::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(138, 43, 226, 0.08) 0%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.act-item:hover::after {
+    transform: translateX(0);
+}
+
+.act-item h4 {
+    font-size: clamp(1.6rem, 3.5vw, 2.8rem);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.75);
+    transition: color 0.3s ease, letter-spacing 0.3s ease;
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+.act-item:hover h4 {
+    color: #fff;
+    letter-spacing: 0.07em;
+}
+.act-item:hover::before {
+    color: var(--accent-purple);
+}
+
+/* 右端の矢印 */
+.act-item .act-arrow {
+    font-size: 1.4rem;
+    color: rgba(176, 82, 255, 0);
+    position: relative;
+    z-index: 1;
+    transform: translateX(-10px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.act-item:hover .act-arrow {
+    color: var(--accent-purple);
+    transform: translateX(0);
+}
+
+.act-clickable {
+    cursor: pointer;
+}
+.act-clickable h4 {
+    color: rgba(255, 255, 255, 0.9);
+}
+.act-clickable:hover h4 {
+    color: #fff;
+    text-shadow: 0 0 30px rgba(176, 82, 255, 0.4);
+}
+
+/* --- 9. Community --- */
+.social-grid { display: flex; gap: 20px; margin-top: 40px; justify-content: center; }
+.social-card {
+    width: 280px; padding: 50px 20px; text-decoration: none; border-radius: 24px;
+    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center; transition: 0.4s; color: #fff;
+}
+.social-card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.08); }
+.social-card.yt:hover { border-color: #ff0000; box-shadow: 0 10px 30px rgba(255, 0, 0, 0.2); }
+.social-card.tw:hover { border-color: var(--twitter-blue); box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3); }
+.social-card.dc:hover { border-color: #5865F2; box-shadow: 0 10px 30px rgba(88, 101, 242, 0.2); }
+.platform {
+    font-size: 2rem; font-weight: 800;
+    display: block; margin-bottom: 10px; color: #fff;
+}
+.label { font-size: 0.9rem; opacity: 0.7; color: #fff; }
+@media (max-width: 768px) {
+    .platform { font-size: 1.6rem; }
+}
+
+/* --- 10. シミュレーターページ --- */
+.sim-page {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 100px;
+    overflow-y: auto;
+    background: transparent;
+}
+.sim-page-inner {
+    width: 100%;
+    max-width: 1200px;
+    padding: 40px;
+}
+.sim-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+}
+.sim-card-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(138, 43, 226, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    transition: all 0.4s ease;
+}
+.sim-card-item:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent-purple);
+    background: rgba(138, 43, 226, 0.08);
+}
+.sim-thumb {
+    width: 100%;
+    height: 160px;
+    background: rgba(138, 43, 226, 0.1);
+    border-radius: 12px;
+    margin-bottom: 16px;
+    border: 1px solid rgba(138, 43, 226, 0.2);
+}
+.sim-card-item h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #fff;
+}
+.sim-card-item p {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.6;
 }
